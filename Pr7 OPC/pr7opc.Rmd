@@ -1,0 +1,113 @@
+---
+title: "Pr7"
+author: "Gonzalo Sanz y Fernando Gonzalez"
+date: "4/4/2020"
+output: html_document
+---
+
+```{r}
+library(readr)
+M15 <- read.csv("monitor15.csv")
+period <- 900
+str(M15)
+head(M15, 10)
+tail(M15, 10)
+```
+
+
+#1
+```{r}
+numArrivals <- nrow(M15) - sum(is.na(M15$arrivals))
+numArrivals
+
+numDepartures <- nrow(M15) - sum(is.na(M15$departures))
+numDepartures
+```
+
+#2
+
+```{r}
+errRelative <- function(arrivals, departures){
+  return(abs(arrivals - departures) / departures)
+}
+
+errRelative(numArrivals, numDepartures)
+```
+
+#3
+```{r}
+tasaCalculator <- function(arrivals, time){
+  return (arrivals/time)
+}
+#4
+tasaLlegadas <- tasaCalculator(numArrivals, period)
+productividad <- tasaCalculator(numDepartures, period)
+#5
+library(dplyr)
+
+mutatedM15 <- mutate(M15, time = M15$departures - M15$arrivals)
+filteredM15 <- filter(mutatedM15, time >= 0)
+nrow(filteredM15)
+
+```
+
+
+````{r}
+#6
+tMedioRespuesta <- mean(filteredM15$time)
+tMedioRespuesta
+````
+
+
+
+```{r}
+#7
+arrivals <- filteredM15$arrivals
+departures <- filteredM15$departures
+ocioso <- 0
+for(i in (1:(length(arrivals)-1))){
+  solapa <- arrivals[i+1] - departures[i]
+  if(solapa>0){
+    ocioso<-ocioso+solapa
+  }
+}
+busy<- period - ocioso
+ServiceTime <- busy / numDepartures
+U <- busy  / period
+ServiceTime
+U
+```
+
+
+
+```{r}
+#Ejercicio 10
+usuarios <- 25
+z <- 6
+data <- data.frame("X" = c(1,2),"Vi" = c(4,3), "Si" = c(0.5,0.75))
+#a
+di <- data$Vi* data$Si
+db <- max(di)
+db
+
+#b
+Rmin <- sum(di)
+Rmin
+
+Xmax <- 1/db
+#c
+tRespuesta <- max(di, usuarios*db-z)
+tRespuesta
+
+Productividad <- min(usuarios/di+z, 1/db)
+Productividad
+
+#d
+Teorico <- (Rmin + z )/ db
+Teorico
+
+#e
+R <- usuarios * db - z
+R
+
+```
